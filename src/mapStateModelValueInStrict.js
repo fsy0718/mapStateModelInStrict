@@ -1,5 +1,8 @@
-const _mapStateModelValueInStrict = function (modelValue, stateName,type, getFn) {
-  return  {
+const _mapStateModelValueInStrict = function (modelValue, stateName, type, getFn) {
+  if (process.env.NODE_ENV === 'development' && (!modelValue || !stateName || !type)) {
+    throw new Error(`vuex-mapstate-modelvalue-instrict: the ${modelValue} at least 3 parameters are required`)
+  }
+  return {
     get () {
       if (getFn) {
         return getFn(this.$store.state, modelValue, stateName)
@@ -13,9 +16,9 @@ const _mapStateModelValueInStrict = function (modelValue, stateName,type, getFn)
 }
 // mapStateModelValueInStrict(modelValue, stateName, type, getFn)
 // mapStateModelValueInStrict([[modelValue, stateName, type, getFn1], [modelValue, stateName, type]], getFn)
-export default function mapStateModelValueInStrict () {
-  let isMul = arguments.length
-  let getFn = isMul > 2 ? arguments[3] : arguments[2]
+const mapStateModelValueInStrict = function () {
+  let isMul = arguments.length < 3
+  let getFn = isMul ? arguments[2] : arguments[3]
   let result = {}
   if (isMul) {
     arguments[0].forEach(function (item) {
@@ -26,3 +29,5 @@ export default function mapStateModelValueInStrict () {
   }
   return result
 }
+
+export { mapStateModelValueInStrict }

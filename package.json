@@ -1,9 +1,23 @@
 {
   "name": "vuex-mapstate-modelvalue-instrict",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A public method used to two-way computed property",
-  "main": "index.js",
+  "main": "dist/mapStateModelValueInStrict.common.js",
+  "module": "dist/mapStateModelValueInStrict.esm.js",
+  "unpkg": "dist/mapStateModelValueInStrict.js",
   "repository": "https://github.com/fsy0718/mapStateModelInStrict.git",
   "author": "fsy0718 <fsy0718@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "dev:dist": "rollup -wm -c build/rollup.dev.config.js",
+    "build:main": "node build/build.main.js",
+    "release": "bash build/release.sh"
+  },
+  "dependencies": {
+    "rollup": "^0.41.6",
+    "rollup-plugin-buble": "^0.15.0",
+    "rollup-plugin-replace": "^1.1.1",
+    "rollup-watch": "^3.2.2",
+    "uglify-js": "^3.0.11"
+  }
 }
