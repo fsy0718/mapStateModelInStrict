@@ -61,7 +61,7 @@ support modules
       computedProps = {
         test: {
           get: function(){
-            return getFn(this.$store.state, 'test')
+            return getFn(this.$store.state, 'test', 'test')
           }, 
           set: function(value){
             this.$store.commit('updateTest', value)
@@ -85,7 +85,7 @@ support modules
           return state[stateName]
       }
     }
-    computedProps = mapStateModelValuesInStrict([['testModel', 'test', 'updateTest'], ['info', 'info', 'updateInfo', {getFn}]], {getFn1})
+    computedProps = mapStateModelValuesInStrict([['testModel', 'test', 'updateTest'], ['info', 'info', 'updateInfo', {getFn}]], {getFn: getFn1})
     /** 
       computedProps = {
         test: {
