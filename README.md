@@ -73,6 +73,18 @@ computedProps = mapStateModelValueInStrict([['testModel', 'test', 'updateTest'],
     }
   }
 */
+
+
+// then
+const config = {
+  computed: {
+    //.....some computed methods
+  }
+}
+
+Object.assign(config.computed, computedProps)
+export default config
+
 ```
 
 ## License
