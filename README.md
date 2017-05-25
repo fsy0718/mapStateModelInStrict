@@ -1,13 +1,18 @@
 ## desc
 A public method used to two-way computed property
 
+## api
+  - `mapStateModelValuesInStrict` will commit a mutation with value
+  - `mapStateModelValuesInStrictWithPayload` will commit a mutation with payload
+
 ## example
 ```js
-import mapStateModelValueInStrict from 'vuex-mapstate-modelvalue-instrict'
+
+import { mapStateModelValuesInStrict, mapStateModelValuesInStrictWithPayload } from 'vuex-mapstate-modelvalue-instrict'
 
 // single, you can pass a get function
-// mapStateModelValueInStrict(modelValue, stateName, mutationType[, getFn])
-computedProps = mapStateModelValueInStrict('test', 'test', 'updateTest')
+// mapStateModelValuesInStrict(modelValue, stateName, mutationType[, getFn])
+computedProps = mapStateModelValuesInStrict('test', 'test', 'updateTest')
 /**
   computedProps = {
     test: {
@@ -20,11 +25,26 @@ computedProps = mapStateModelValueInStrict('test', 'test', 'updateTest')
     }
   }
 */
-
+// commit with payload
+computedProps = mapStateModelValuesInStrictWithPayload('test', 'test', 'updateTest')
+/**
+  computedProps = {
+    test: {
+      get: function(){
+        return this.$store.state.test
+      }, 
+      set: function(value){
+        this.$store.commit('updateTest', {
+          test: value
+        })
+      }
+    }
+  }
+*/
 let getFn = function(state, modelValue, stateName){
   return state.obj.msg
 }
-computedProps = mapStateModelValueInStrict('test', 'test', 'updateTest', getFn)
+computedProps = mapStateModelValuesInStrict('test', 'test', 'updateTest', getFn)
 /** 
   computedProps = {
     test: {
@@ -39,9 +59,9 @@ computedProps = mapStateModelValueInStrict('test', 'test', 'updateTest', getFn)
 */
 
 // multiple 
-// mapStateModelValueInStrict([[modelValue, stateName, type], [modelValue, stateName, type]], getFn)
+// mapStateModelValuesInStrict([[modelValue, stateName, type], [modelValue, stateName, type]], getFn)
 //GetFn1 has a higher priority than getFn
-// mapStateModelValueInStrict([[modelValue, stateName, type, getFn1], [modelValue, stateName, type]], getFn)
+// mapStateModelValuesInStrict([[modelValue, stateName, type, getFn1], [modelValue, stateName, type]], getFn)
 let getFn1 = function(state, modelValue, stateName) {
   switch (modelValue) {
     case 'info':
@@ -52,7 +72,7 @@ let getFn1 = function(state, modelValue, stateName) {
       return state[stateName]
   }
 }
-computedProps = mapStateModelValueInStrict([['testModel', 'test', 'updateTest'], ['info', 'info', 'updateInfo', getFn]], getFn1)
+computedProps = mapStateModelValuesInStrict([['testModel', 'test', 'updateTest'], ['info', 'info', 'updateInfo', getFn]], getFn1)
 /** 
   computedProps = {
     test: {

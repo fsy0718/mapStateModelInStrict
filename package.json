@@ -1,6 +1,6 @@
 {
   "name": "vuex-mapstate-modelvalue-instrict",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A public method used to two-way computed property",
   "main": "dist/mapStateModelValueInStrict.common.js",
   "module": "dist/mapStateModelValueInStrict.esm.js",
