@@ -1,9 +1,11 @@
 /**
- * vuex-mapstate-modelvalue-instrict- v0.0.2
+ * vuex-mapstate-modelvalue-instrict- v0.0.3
  * (c) 2017 fsy0718
  * @license MIT
  */
-var _mapStateModelValueInStrict = function (modelValue, stateName, type, getFn) {
+var push = Array.prototype.push;
+var pop = Array.prototype.pop;
+var _mapStateModelValueInStrict = function (modelValue, stateName, type, getFn, setWithPayload) {
   if (process.env.NODE_ENV === 'development' && (!modelValue || !stateName || !type)) {
     throw new Error(("vuex-mapstate-modelvalue-instrict: the " + modelValue + " at least 3 parameters are required"))
   }
@@ -15,29 +17,47 @@ var _mapStateModelValueInStrict = function (modelValue, stateName, type, getFn) 
       return this.$store.state[stateName]
     },
     set: function set (value) {
-      this.$store.commit(type, value);
+      if (setWithPayload) {
+        this.$store.commit(type, ( obj = {}, obj[stateName] = value, obj ));
+        var obj;
+      } else {
+        this.$store.commit(type, value);
+      }
     }
   }
 };
 // mapStateModelValueInStrict(modelValue, stateName, type, getFn)
 // mapStateModelValueInStrict([[modelValue, stateName, type, getFn1], [modelValue, stateName, type]], getFn)
-var mapStateModelValueInStrict = function () {
-  var isMul = arguments.length < 3;
-  var getFn = isMul ? arguments[2] : arguments[3];
+var _mapStateModelValuesInStrict = function () {
+  var args = arguments;
+  var setWithPayload = pop.call(args);
+  var isMul = args.length < 3;
+  var getFn = isMul ? args[2] : args[3];
   var result = {};
   if (isMul) {
-    arguments[0].forEach(function (item) {
-      result[item[0]] = _mapStateModelValueInStrict(item[0], item[1], item[2], item[3] || getFn);
+    args[0].forEach(function (item) {
+      result[item[0]] = _mapStateModelValueInStrict(item[0], item[1], item[2], item[3] || getFn, setWithPayload);
     });
   } else {
-    result[arguments[0]] = _mapStateModelValueInStrict(arguments[0], arguments[1], arguments[2], getFn);
+    result[args[0]] = _mapStateModelValueInStrict(args[0], args[1], args[2], getFn, setWithPayload);
   }
   return result
 };
-
-var index_esm = {
-  mapStateModelValueInStrict: mapStateModelValueInStrict,
-  version: '0.0.2'
+var mapStateModelValuesInStrictWithPayload = function () {
+  var args = arguments;
+  push.call(arguments, true);
+  return _mapStateModelValuesInStrict.apply(null, args)
+};
+var mapStateModelValuesInStrict = function () {
+  var args = arguments;
+  push.call(arguments, false);
+  return _mapStateModelValuesInStrict.apply(null, args)
 };
 
-export { mapStateModelValueInStrict };export default index_esm;
+var index_esm = {
+  mapStateModelValuesInStrict: mapStateModelValuesInStrict,
+  mapStateModelValuesInStrictWithPayload: mapStateModelValuesInStrictWithPayload,
+  version: '0.0.3'
+};
+
+export { mapStateModelValuesInStrict, mapStateModelValuesInStrictWithPayload };export default index_esm;

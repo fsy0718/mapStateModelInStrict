@@ -1,6 +1,7 @@
-import { mapStateModelValueInStrict } from './mapStateModelValueInStrict'
+import { mapStateModelValuesInStrict, mapStateModelValuesInStrictWithPayload } from './mapStateModelValueInStrict'
 
 export default {
-  mapStateModelValueInStrict,
+  mapStateModelValuesInStrict,
+  mapStateModelValuesInStrictWithPayload,
   version: '__VERSION__'
 }
