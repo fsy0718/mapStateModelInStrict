@@ -1,48 +1,67 @@
 /**
- * vuex-mapstate-modelvalue-instrict- v0.0.3
+ * vuex-mapstate-modelvalue-instrict- v0.0.4
  * (c) 2017 fsy0718
  * @license MIT
  */
 var push = Array.prototype.push;
 var pop = Array.prototype.pop;
-var _mapStateModelValueInStrict = function (modelValue, stateName, type, getFn, setWithPayload) {
+var _mapStateModelValueInStrict = function (modelValue, stateName, type, opts, setWithPayload, copts) {
+  if ( opts === void 0 ) opts = {};
+  if ( copts === void 0 ) copts = {};
+
   if (process.env.NODE_ENV === 'development' && (!modelValue || !stateName || !type)) {
     throw new Error(("vuex-mapstate-modelvalue-instrict: the " + modelValue + " at least 3 parameters are required"))
   }
+  var getFn = opts.getFn || copts.getFn;
+  var modulePath = opts.modulePath || copts.modulePath;
   return {
     get: function get () {
       if (getFn) {
-        return getFn(this.$store.state, modelValue, stateName)
+        return getFn(this.$store.state, modelValue, stateName, modulePath)
+      }
+      if (modulePath) {
+        var paths = modulePath.split('/') || [];
+        var result;
+        try {
+          result = paths.reduce(function (r, c) {
+            return r[c]
+          }, this.$store.state);
+          result = result[stateName];
+        } catch (e) {
+          if (process.env.NODE_ENV === 'development') {
+            throw e
+          }
+          result = undefined;
+        }
+        return result
       }
       return this.$store.state[stateName]
     },
     set: function set (value) {
-      if (setWithPayload) {
-        this.$store.commit(type, ( obj = {}, obj[stateName] = value, obj ));
-        var obj;
-      } else {
-        this.$store.commit(type, value);
-      }
+      var mutation = setWithPayload ? ( obj = {}, obj[stateName] = value, obj ) : value;
+      var obj;
+      var _type = modulePath ? (modulePath + "/" + type) : type;
+      this.$store.commit(_type, mutation, modulePath ? opts.param || copts.param : undefined);
     }
   }
 };
-// mapStateModelValueInStrict(modelValue, stateName, type, getFn)
-// mapStateModelValueInStrict([[modelValue, stateName, type, getFn1], [modelValue, stateName, type]], getFn)
+
 var _mapStateModelValuesInStrict = function () {
   var args = arguments;
   var setWithPayload = pop.call(args);
-  var isMul = args.length < 3;
-  var getFn = isMul ? args[2] : args[3];
   var result = {};
-  if (isMul) {
+  if (Array.isArray(args[0])) {
+    var opts = args[1];
     args[0].forEach(function (item) {
-      result[item[0]] = _mapStateModelValueInStrict(item[0], item[1], item[2], item[3] || getFn, setWithPayload);
+      result[item[0]] = _mapStateModelValueInStrict(item[0], item[1], item[2], item[3], setWithPayload, opts);
     });
   } else {
-    result[args[0]] = _mapStateModelValueInStrict(args[0], args[1], args[2], getFn, setWithPayload);
+    result[args[0]] = _mapStateModelValueInStrict(args[0], args[1], args[2], args[3], setWithPayload);
   }
   return result
 };
+// mapStateModelValuesInStrict(modelValue, stateName, type, {getFn, setWithPayload, modulePath}})
+// mapStateModelValuesInStrict([[modelValue, stateName, type, {getFn1}], [modelValue, stateName, type]], {getFn, setWithPayload})
 var mapStateModelValuesInStrictWithPayload = function () {
   var args = arguments;
   push.call(arguments, true);
@@ -57,7 +76,7 @@ var mapStateModelValuesInStrict = function () {
 var index_esm = {
   mapStateModelValuesInStrict: mapStateModelValuesInStrict,
   mapStateModelValuesInStrictWithPayload: mapStateModelValuesInStrictWithPayload,
-  version: '0.0.3'
+  version: '0.0.4'
 };
 
 export { mapStateModelValuesInStrict, mapStateModelValuesInStrictWithPayload };export default index_esm;

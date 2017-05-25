@@ -1,44 +1,58 @@
 const push = Array.prototype.push
 const pop = Array.prototype.pop
-const _mapStateModelValueInStrict = function (modelValue, stateName, type, getFn, setWithPayload) {
+const _mapStateModelValueInStrict = function (modelValue, stateName, type, opts = {}, setWithPayload, copts = {}) {
   if (process.env.NODE_ENV === 'development' && (!modelValue || !stateName || !type)) {
     throw new Error(`vuex-mapstate-modelvalue-instrict: the ${modelValue} at least 3 parameters are required`)
   }
+  let getFn = opts.getFn || copts.getFn
+  let modulePath = opts.modulePath || copts.modulePath
   return {
     get () {
       if (getFn) {
-        return getFn(this.$store.state, modelValue, stateName)
+        return getFn(this.$store.state, modelValue, stateName, modulePath)
+      }
+      if (modulePath) {
+        let paths = modulePath.split('/') || []
+        let result
+        try {
+          result = paths.reduce(function (r, c) {
+            return r[c]
+          }, this.$store.state)
+          result = result[stateName]
+        } catch (e) {
+          if (process.env.NODE_ENV === 'development') {
+            throw e
+          }
+          result = undefined
+        }
+        return result
       }
       return this.$store.state[stateName]
     },
     set (value) {
-      if (setWithPayload) {
-        this.$store.commit(type, {
-          [stateName]: value
-        })
-      } else {
-        this.$store.commit(type, value)
-      }
+      let mutation = setWithPayload ? { [stateName]: value } : value
+      let _type = modulePath ? `${modulePath}/${type}` : type
+      this.$store.commit(_type, mutation, modulePath ? opts.param || copts.param : undefined)
     }
   }
 }
-// mapStateModelValueInStrict(modelValue, stateName, type, getFn)
-// mapStateModelValueInStrict([[modelValue, stateName, type, getFn1], [modelValue, stateName, type]], getFn)
+
 const _mapStateModelValuesInStrict = function () {
   let args = arguments
   let setWithPayload = pop.call(args)
-  let isMul = args.length < 3
-  let getFn = isMul ? args[2] : args[3]
   let result = {}
-  if (isMul) {
+  if (Array.isArray(args[0])) {
+    let opts = args[1]
     args[0].forEach(function (item) {
-      result[item[0]] = _mapStateModelValueInStrict(item[0], item[1], item[2], item[3] || getFn, setWithPayload)
+      result[item[0]] = _mapStateModelValueInStrict(item[0], item[1], item[2], item[3], setWithPayload, opts)
     })
   } else {
-    result[args[0]] = _mapStateModelValueInStrict(args[0], args[1], args[2], getFn, setWithPayload)
+    result[args[0]] = _mapStateModelValueInStrict(args[0], args[1], args[2], args[3], setWithPayload)
   }
   return result
 }
+// mapStateModelValuesInStrict(modelValue, stateName, type, {getFn, setWithPayload, modulePath}})
+// mapStateModelValuesInStrict([[modelValue, stateName, type, {getFn1}], [modelValue, stateName, type]], {getFn, setWithPayload})
 const mapStateModelValuesInStrictWithPayload = function () {
   let args = arguments
   push.call(arguments, true)
