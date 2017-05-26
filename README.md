@@ -1,10 +1,14 @@
 ## desc
 A public method used to two-way computed property
+
 support modules
 
 ## api
   - `mapStateModelValuesInStrict` will commit a mutation with value
   - `mapStateModelValuesInStrictWithPayload` will commit a mutation with payload
+
+## online demo
+  [simple](https://jsfiddle.net/fsy0718/dwy9ejgo/)
 
 ## use
 
